@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mở Quà iPhone 17 Pro Max - Tuyết Rơi</title>
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+    <style>
+        /* Cấu hình cơ bản */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364); /* Màu nền mùa đông xanh đậm */
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Container chứa tất cả */
+        .container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10; /* Đặt trên lớp tuyết */
+        }
+
+        /* --- PHẦN HỘP QUÀ LOTTIE --- */
+        #gift-wrapper {
+            position: absolute;
+            z-index: 100;
+            cursor: pointer;
+            transition: all 0.8s ease-in-out;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        #gift-wrapper:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)); /* Sáng rực rỡ hơn */
+        }
+
+        /* --- PHẦN PHẦN THƯỞNG (IPHONE) --- */
+        .prize-container {
+            position: absolute;
+            opacity: 0;
+            transform: scale(0.5);
+            pointer-events: none;
+            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 90;
+            text-align: center;
+        }
+
+        .iphone-img {
+            width: 280px;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.8)); 
+        }
+
+        .prize-text {
+            color: #fff;
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* --- HIỆU ỨNG ÁNH SÁNG NỀN (GLOW) --- */
+        .glow-effect {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0) 70%);
+            opacity: 0;
+            transition: opacity 1.5s;
+            z-index: 5;
+            border-radius: 50%;
+        }
+
+        /* --- TRẠNG THÁI KHI ĐÃ MỞ --- */
+        .container.open #gift-wrapper {
+            opacity: 0;
+            transform: scale(2);
+            pointer-events: none;
+        }
+
+        .container.open .prize-container {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .container.open .glow-effect {
+            opacity: 1;
+            animation: spin 20s linear infinite;
+        }
+
+        /* --- CSS CHO TUYẾT RƠI (SNOW) --- */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            pointer-events: none; /* Để chuột click xuyên qua tuyết */
+            animation: fall linear forwards;
+            z-index: 1; /* Tuyết rơi phía sau hộp quà một chút */
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animation rơi cho tuyết */
+        @keyframes fall {
+            to {
+                transform: translateY(105vh);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="snow-container"></div>
+
+    <div class="container" id="mainContainer">
+        <div class="glow-effect"></div>
+
+        <div id="gift-wrapper">
+            <dotlottie-wc 
+                src="https://lottie.host/31c721ec-f5ff-4833-b62d-df75a7314fa3/ODd9LUPuSO.lottie" 
+                style="width: 300px; height: 300px" 
+                autoplay 
+                loop
+            ></dotlottie-wc>
+            <div style="text-align: center; color: white; margin-top: -20px; font-weight: bold; text-shadow: 0 0 5px #000;">Nhấn để nhận quà</div>
+        </div>
+
+        <div class="prize-container">
+            <img src="ip17.png" alt="iPhone 17 Pro Max" class="iphone-img">
+            <div class="prize-text">Quà Giáng Sinh<br>iPhone 17 Pro Max </div>🤡
+        </div>
+    </div>
+
+    <script>
+        // --- 1. LOGIC HỘP QUÀ ---
+        const container = document.getElementById('mainContainer');
+        const giftWrapper = document.getElementById('gift-wrapper');
+
+        giftWrapper.addEventListener('click', () => {
+            container.classList.add('open');
+            // Tăng tốc độ tuyết rơi khi mở quà cho kịch tính
+            clearInterval(snowInterval);
+            snowInterval = setInterval(createSnowflake, 20); 
+        });
+
+        // --- 2. LOGIC TUYẾT RƠI ---
+        function createSnowflake() {
+            const snow = document.createElement('div');
+            snow.classList.add('snowflake');
+            
+            // Kích thước ngẫu nhiên (từ 2px đến 7px)
+            const size = Math.random() * 5 + 2; 
+            snow.style.width = `${size}px`;
+            snow.style.height = `${size}px`;
+            
+            // Vị trí ngang ngẫu nhiên
+            snow.style.left = Math.random() * 100 + 'vw';
+            
+            // Độ mờ ngẫu nhiên
+            snow.style.opacity = Math.random();
+            
+            // Tốc độ rơi ngẫu nhiên (từ 3s đến 8s)
+            const duration = Math.random() * 5 + 3;
+            snow.style.animationDuration = `${duration}s`;
+
+            document.body.appendChild(snow);
+
+            // Xóa bông tuyết sau khi rơi xong để tránh nặng máy
+            setTimeout(() => {
+                snow.remove();
+            }, duration * 1000);
+        }
+
+        // Tạo tuyết rơi liên tục (50ms tạo 1 bông)
+        let snowInterval = setInterval(createSnowflake, 50);
+
+    </script>
+
+</body>
+</html>
