@@ -1,203 +1,388 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quà Giáng Sinh</title>
-    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+    <title>Magic Christmas - Green Tree & Snow</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
     <style>
-        /* Cấu hình cơ bản */
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364); /* Màu nền mùa đông xanh đậm */
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
+        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Segoe UI', sans-serif; }
+        #canvas-container { width: 100%; height: 100vh; display: block; }
+        
+        /* UI Layer */
+        #ui-layer {
+            position: absolute; bottom: 30px; width: 100%;
+            text-align: center; pointer-events: none; z-index: 100;
         }
-
-        /* Container chứa tất cả */
-        .container {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10; /* Đặt trên lớp tuyết */
+        
+        button {
+            pointer-events: auto; cursor: pointer;
+            /* Đổi nút sang tông xanh/đỏ cho hợp giáng sinh */
+            background: linear-gradient(to bottom, #2E8B57, #006400); 
+            color: #FFF; border: 2px solid #FFD700;
+            padding: 15px 50px; border-radius: 30px; 
+            font-weight: 800; font-size: 16px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+            animation: pulse 1.5s infinite;
         }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* --- PHẦN HỘP QUÀ LOTTIE --- */
-        #gift-wrapper {
-            position: absolute;
-            z-index: 100;
-            cursor: pointer;
-            transition: all 0.8s ease-in-out;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        #gift-wrapper:hover {
-            transform: scale(1.05);
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)); /* Sáng rực rỡ hơn */
-        }
-
-        /* --- PHẦN PHẦN THƯỞNG (IPHONE) --- */
-        .prize-container {
-            position: absolute;
-            opacity: 0;
-            transform: scale(0.5);
-            pointer-events: none;
-            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 90;
-            text-align: center;
-        }
-
-        .iphone-img {
-            width: 280px;
-            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.8)); 
-        }
-
-        .prize-text {
-            color: #fff;
-            margin-top: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
-            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        /* --- HIỆU ỨNG ÁNH SÁNG NỀN (GLOW) --- */
-        .glow-effect {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0) 70%);
-            opacity: 0;
-            transition: opacity 1.5s;
-            z-index: 5;
-            border-radius: 50%;
-        }
-
-        /* --- TRẠNG THÁI KHI ĐÃ MỞ --- */
-        .container.open #gift-wrapper {
-            opacity: 0;
-            transform: scale(2);
-            pointer-events: none;
-        }
-
-        .container.open .prize-container {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: auto;
-        }
-
-        .container.open .glow-effect {
-            opacity: 1;
-            animation: spin 20s linear infinite;
-        }
-
-        /* --- CSS CHO TUYẾT RƠI (SNOW) --- */
-        .snowflake {
-            position: absolute;
-            top: -10px;
-            background-color: white;
-            border-radius: 50%;
-            opacity: 0.8;
-            pointer-events: none; /* Để chuột click xuyên qua tuyết */
-            animation: fall linear forwards;
-            z-index: 1; /* Tuyết rơi phía sau hộp quà một chút */
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Animation rơi cho tuyết */
-        @keyframes fall {
-            to {
-                transform: translateY(105vh);
-            }
+        #copyright {
+            position: absolute; bottom: 10px; right: 15px;
+            color: rgba(255, 255, 255, 0.3); font-size: 12px;
+            z-index: 100; font-family: sans-serif; pointer-events: none; font-style: italic;
         }
     </style>
 </head>
 <body>
-
-    <div id="snow-container"></div>
-
-    <div class="container" id="mainContainer">
-        <div class="glow-effect"></div>
-
-        <div id="gift-wrapper">
-            <dotlottie-wc 
-                src="https://lottie.host/31c721ec-f5ff-4833-b62d-df75a7314fa3/ODd9LUPuSO.lottie" 
-                style="width: 300px; height: 300px" 
-                autoplay 
-                loop
-            ></dotlottie-wc>
-            <div style="text-align: center; color: white; margin-top: -20px; font-weight: bold; text-shadow: 0 0 5px #000;">Nhấn để nhận quà</div>
-        </div>
-
-        <div class="prize-container">
-            <img src="ip17.png" alt="iPhone 17 Pro Max" class="iphone-img">
-            <div class="prize-text">Quà Giáng Sinh<br>iPhone 17 Pro Max </div>🤡
-        </div>
+    <div id="ui-layer">
+        <button id="btnStart" onclick="startSystem()">START CHRISTMAS</button>
     </div>
 
+    <div id="copyright">© by vandiep</div>
+
+    <div id="canvas-container"></div>
+    
     <script>
-        // --- 1. LOGIC HỘP QUÀ ---
-        const container = document.getElementById('mainContainer');
-        const giftWrapper = document.getElementById('gift-wrapper');
+        // ==========================================
+        // 1. RESOURCES CONFIG
+        // ==========================================
+        const MUSIC_URL = "./audio.mp3"; 
+        let bgMusic = new Audio(MUSIC_URL);
+        bgMusic.loop = true; bgMusic.volume = 1.0;
 
-        giftWrapper.addEventListener('click', () => {
-            container.classList.add('open');
-            // Tăng tốc độ tuyết rơi khi mở quà cho kịch tính
-            clearInterval(snowInterval);
-            snowInterval = setInterval(createSnowflake, 20); 
-        });
+        // Texture loader
+        function createCustomTexture(type) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            const cx = 64, cy = 64;
 
-        // --- 2. LOGIC TUYẾT RƠI ---
-        function createSnowflake() {
-            const snow = document.createElement('div');
-            snow.classList.add('snowflake');
-            
-            // Kích thước ngẫu nhiên (từ 2px đến 7px)
-            const size = Math.random() * 5 + 2; 
-            snow.style.width = `${size}px`;
-            snow.style.height = `${size}px`;
-            
-            // Vị trí ngang ngẫu nhiên
-            snow.style.left = Math.random() * 100 + 'vw';
-            
-            // Độ mờ ngẫu nhiên
-            snow.style.opacity = Math.random();
-            
-            // Tốc độ rơi ngẫu nhiên (từ 3s đến 8s)
-            const duration = Math.random() * 5 + 3;
-            snow.style.animationDuration = `${duration}s`;
+            if (type === 'green_glow') {
+                // --- THAY ĐỔI: TẠO MÀU XANH LÁ CÂY ---
+                const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 40);
+                grd.addColorStop(0, '#FFFFFF');     // Tâm trắng sáng
+                grd.addColorStop(0.2, '#90EE90');   // Xanh nhạt (Light Green)
+                grd.addColorStop(0.5, '#006400');   // Xanh đậm (Dark Green)
+                grd.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = grd; ctx.fillRect(0,0,128,128);
 
-            document.body.appendChild(snow);
+            } else if (type === 'red_light') {
+                const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 50);
+                grd.addColorStop(0, '#FFAAAA'); 
+                grd.addColorStop(0.3, '#FF0000'); 
+                grd.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = grd; ctx.fillRect(0,0,128,128);
 
-            // Xóa bông tuyết sau khi rơi xong để tránh nặng máy
-            setTimeout(() => {
-                snow.remove();
-            }, duration * 1000);
+            } else if (type === 'gift_red') {
+                ctx.fillStyle = '#D32F2F'; ctx.fillRect(20, 20, 88, 88);
+                ctx.fillStyle = '#FFD700'; ctx.fillRect(54, 20, 20, 88); ctx.fillRect(20, 54, 88, 20);
+                ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth=2; ctx.strokeRect(20,20,88,88);
+            
+            } else if (type === 'snow') {
+                // --- THAY ĐỔI: TẠO TEXTURE TUYẾT ---
+                const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60);
+                grd.addColorStop(0, 'rgba(255, 255, 255, 1)'); 
+                grd.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)'); 
+                grd.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = grd; ctx.fillRect(0,0,128,128);
+            }
+            return new THREE.CanvasTexture(canvas);
         }
 
-        // Tạo tuyết rơi liên tục (50ms tạo 1 bông)
-        let snowInterval = setInterval(createSnowflake, 50);
+        const textures = {
+            green: createCustomTexture('green_glow'), // Đổi tên key thành green
+            red: createCustomTexture('red_light'),
+            gift: createCustomTexture('gift_red'),
+            snow: createCustomTexture('snow')
+        };
 
+        // ==========================================
+        // 2. SYSTEM CONFIG
+        // ==========================================
+        const CONFIG = {
+            greenCount: 2500, // Tăng số lượng lá cây để cây trông dày hơn
+            redCount: 300,
+            giftCount: 150,
+            snowCount: 1000,   // Số lượng hạt tuyết
+            treeHeight: 75,
+            treeBaseRadius: 35
+        };
+
+        let scene, camera, renderer;
+        let groupGreen, groupRed, groupGift, groupSnow; // Thêm groupSnow
+        let titleMesh, starMesh;
+        
+        let state = 'TREE'; 
+
+        // ==========================================
+        // 3. THREE.JS SYSTEM
+        // ==========================================
+        function init3D() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x000000, 0.002);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+            camera.position.z = 100;
+            camera.position.y = 10;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Tạo các nhóm hạt
+            // Tham số type: 'green' thay cho 'gold'
+            groupGreen = createParticleSystem('green', CONFIG.greenCount, 2.5); 
+            groupRed = createParticleSystem('red', CONFIG.redCount, 3.5); 
+            groupGift = createParticleSystem('gift', CONFIG.giftCount, 3.0); 
+
+            // Tạo tuyết
+            createSnowSystem();
+
+            createDecorations();
+            animate();
+        }
+
+        // --- HỆ THỐNG CÂY THÔNG (MORPHING) ---
+        function createParticleSystem(type, count, size) {
+            const pPositions = [];
+            const pTreeTargets = [];
+            const sizes = []; 
+            const phases = []; 
+            
+            for(let i=0; i<count; i++) {
+                // Hình dáng cây thông
+                const h = Math.random() * CONFIG.treeHeight; 
+                const y = h - CONFIG.treeHeight / 2;
+                
+                // Điều chỉnh bán kính để cây Green trông "phồng" hơn một chút
+                let radiusRatio = (type === 'green') ? Math.sqrt(Math.random()) : 0.9 + Math.random()*0.1;
+                const maxR = (1 - (h / CONFIG.treeHeight)) * CONFIG.treeBaseRadius;
+                const r = maxR * radiusRatio; 
+                const theta = Math.random() * Math.PI * 2;
+                
+                // Xoắn nhẹ để tạo hiệu ứng lớp lá
+                const spiral = h * 0.1; 
+                
+                pTreeTargets.push(r * Math.cos(theta + spiral), y, r * Math.sin(theta + spiral));
+
+                // Init Position (start random)
+                pPositions.push((Math.random()-0.5)*100, (Math.random()-0.5)*100, (Math.random()-0.5)*100);
+                
+                sizes.push(size);
+                phases.push(Math.random() * Math.PI * 2);
+            }
+
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(pPositions, 3));
+            geo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+            
+            // Màu sắc
+            const colors = new Float32Array(count * 3);
+            const baseColor = new THREE.Color();
+            
+            // --- CẤU HÌNH MÀU SẮC ---
+            if(type === 'green') baseColor.setHex(0x008000); // Xanh lá thuần
+            else if(type === 'red') baseColor.setHex(0xFF0000);
+            else baseColor.setHex(0xFFFFFF);
+
+            for(let i=0; i<count; i++) {
+                colors[i*3] = baseColor.r;
+                colors[i*3+1] = baseColor.g;
+                colors[i*3+2] = baseColor.b;
+            }
+            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            geo.userData = { 
+                tree: pTreeTargets, 
+                phases: phases, 
+                baseColor: baseColor, 
+                baseSize: size
+            };
+
+            const mat = new THREE.PointsMaterial({
+                size: size,
+                map: textures[type], // Sử dụng texture tương ứng
+                transparent: true, opacity: 1.0,
+                vertexColors: true, 
+                blending: (type === 'gift') ? THREE.NormalBlending : THREE.AdditiveBlending, 
+                depthWrite: false,
+                sizeAttenuation: true
+            });
+
+            const points = new THREE.Points(geo, mat);
+            scene.add(points);
+            return points;
+        }
+
+        // --- HỆ THỐNG TUYẾT RƠI (RIÊNG BIỆT) ---
+        function createSnowSystem() {
+            const positions = [];
+            const velocities = []; // Tốc độ rơi riêng cho từng hạt
+            
+            for(let i=0; i < CONFIG.snowCount; i++) {
+                // Phân bố tuyết rộng hơn màn hình
+                positions.push(
+                    (Math.random() - 0.5) * 200, // x
+                    (Math.random() - 0.5) * 200, // y
+                    (Math.random() - 0.5) * 100  // z
+                );
+                // Tốc độ rơi ngẫu nhiên
+                velocities.push(0.1 + Math.random() * 0.3);
+            }
+
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            
+            // Lưu velocity vào userData để dùng trong animate
+            geo.userData = { velocities: velocities };
+
+            const mat = new THREE.PointsMaterial({
+                size: 1.5,
+                map: textures['snow'],
+                transparent: true, 
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                color: 0xFFFFFF
+            });
+
+            groupSnow = new THREE.Points(geo, mat);
+            scene.add(groupSnow);
+        }
+
+        function updateSnow() {
+            if(!groupSnow) return;
+            const positions = groupSnow.geometry.attributes.position.array;
+            const velocities = groupSnow.geometry.userData.velocities;
+
+            for(let i=0; i < CONFIG.snowCount; i++) {
+                // Di chuyển trục Y xuống
+                positions[i*3 + 1] -= velocities[i];
+
+                // Gió nhẹ (di chuyển trục X qua lại theo hàm sin)
+                positions[i*3] -= Math.sin(Date.now() * 0.001 + i) * 0.02;
+
+                // Nếu rơi xuống đáy (-60), reset lên đỉnh (60)
+                if (positions[i*3 + 1] < -60) {
+                    positions[i*3 + 1] = 60;
+                    positions[i*3] = (Math.random() - 0.5) * 200; // Reset X ngẫu nhiên
+                }
+            }
+            groupSnow.geometry.attributes.position.needsUpdate = true;
+            // Xoay nhẹ cả khối tuyết
+            groupSnow.rotation.y += 0.0005;
+        }
+
+        function createDecorations() {
+            // MERRY CHRISTMAS
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.font = 'bold italic 90px "Times New Roman"';
+            ctx.fillStyle = '#FFFFFF'; // Đổi chữ sang Trắng cho nổi trên nền xanh
+            ctx.textAlign = 'center';
+            ctx.shadowColor = "#00FF00"; ctx.shadowBlur = 20; 
+            ctx.fillText("MERRY CHRISTMAS", 512, 130);
+            const tex = new THREE.CanvasTexture(canvas);
+            const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending });
+            titleMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 15), mat);
+            titleMesh.position.set(0, 50, 0);
+            scene.add(titleMesh);
+
+            // STAR
+            const starCanvas = document.createElement('canvas');
+            starCanvas.width = 128; starCanvas.height = 128;
+            const sCtx = starCanvas.getContext('2d');
+            sCtx.fillStyle = "#FFFF00"; sCtx.shadowColor="#FFF"; sCtx.shadowBlur=20;
+            sCtx.beginPath();
+            const cx=64, cy=64, outer=50, inner=20;
+            for(let i=0; i<5; i++){
+                sCtx.lineTo(cx + Math.cos((18+i*72)/180*Math.PI)*outer, cy - Math.sin((18+i*72)/180*Math.PI)*outer);
+                sCtx.lineTo(cx + Math.cos((54+i*72)/180*Math.PI)*inner, cy - Math.sin((54+i*72)/180*Math.PI)*inner);
+            }
+            sCtx.closePath(); sCtx.fill();
+            const starTex = new THREE.CanvasTexture(starCanvas);
+            const starMat = new THREE.MeshBasicMaterial({ map: starTex, transparent: true, blending: THREE.AdditiveBlending });
+            starMesh = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), starMat);
+            starMesh.position.set(0, CONFIG.treeHeight/2 + 2, 0);
+            scene.add(starMesh);
+        }
+
+        function updateParticleGroup(group, type, speed, time) {
+            const positions = group.geometry.attributes.position.array;
+            const sizes = group.geometry.attributes.size.array;
+            const colors = group.geometry.attributes.color.array;
+            const phases = group.geometry.userData.phases;
+            const baseColor = group.geometry.userData.baseColor;
+            const baseSize = group.geometry.userData.baseSize;
+            
+            const targets = group.geometry.userData['tree'];
+
+            // 1. Move Position
+            for(let i=0; i<positions.length; i++) {
+                positions[i] += (targets[i] - positions[i]) * speed;
+            }
+            group.geometry.attributes.position.needsUpdate = true;
+            
+            // 2. Animation (Color & Rotate)
+            group.rotation.y += 0.003; 
+            
+            const count = positions.length / 3;
+            for(let i=0; i<count; i++) {
+                sizes[i] = baseSize;
+                let brightness = 1.0;
+                
+                if(type === 'red') {
+                    // Nhấp nháy đèn đỏ
+                    brightness = 0.5 + 0.5 * Math.sin(time * 3 + phases[i]);
+                } else if(type === 'green') {
+                    // Cây xanh: Biến đổi nhẹ giữa xanh non và xanh đậm
+                    brightness = 0.6 + 0.4 * Math.sin(time * 2 + phases[i]);
+                }
+                colors[i*3]   = baseColor.r * brightness;
+                colors[i*3+1] = baseColor.g * brightness;
+                colors[i*3+2] = baseColor.b * brightness;
+            }
+            group.geometry.attributes.color.needsUpdate = true;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.001;
+            const speed = 0.08;
+
+            updateParticleGroup(groupGreen, 'green', speed, time);
+            updateParticleGroup(groupRed, 'red', speed, time);
+            updateParticleGroup(groupGift, 'gift', speed, time);
+
+            // Cập nhật tuyết rơi
+            updateSnow();
+
+            // Hiệu ứng trang trí
+            titleMesh.visible = true; 
+            starMesh.visible = true; 
+            titleMesh.scale.lerp(new THREE.Vector3(1,1,1), 0.1);
+            
+            starMesh.rotation.z -= 0.01; 
+            starMesh.material.opacity = 0.8 + 0.2*Math.sin(time*5);
+            
+            renderer.render(scene, camera);
+        }
+
+        function startSystem() {
+            document.getElementById('btnStart').style.display = 'none';
+            bgMusic.play().catch(e => console.log(e));
+            init3D();
+        }
+
+        window.addEventListener('resize', () => {
+            if(camera) { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+        });
     </script>
-
 </body>
 </html>
